@@ -1,16 +1,32 @@
-# ColPali fine-tuning Query Generator - Comprehensive Setup Guide for Beginners
+# ColPali fine-tuning Query Generator
+Original repo https://huggingface.co/spaces/davanstrien/ColPali-Query-Generator
+
+## Using the Application:
+   a. The interface will allow you to upload an image of a document.
+   b. The model will generate queries based on the document content.
+   c. Results will be displayed in the interface.
+
+## Performance Considerations:
+    - This setup runs the model on CPU, which will be significantly slower than GPU acceleration.
+    - For better performance, consider using a smaller model or exploring cloud-based GPU solutions.
+
+Remember, running large language models on a VM without GPU acceleration will be slow. This setup is more suitable for testing and development rather than production use.
+
+
+# Comprehensive Setup Guide for Beginners
+
 Tested on Windows 11, need to further figure out how to GPU instead of CPU.
 
 1. Install Git Bash:
-   a. Visit https://git-scm.com/download/win
-   b. Download the 64-bit Git for Windows Setup.
-   c. Run the installer, accepting default options.
+   *a. Visit https://git-scm.com/download/win
+   *b. Download the 64-bit Git for Windows Setup.
+   *c. Run the installer, accepting default options.
 
 2. Install Python:
-   a. Open Git Bash terminal.
-   b. Type `python --version` to trigger Python installation.
-   c. Follow the installation prompts, ensuring to check "Add Python to PATH".
-   d. Verify installation by reopening Git Bash and typing:
+   *a. Open Git Bash terminal.
+   *b. Type `python --version` to trigger Python installation.
+   *c. Follow the installation prompts, ensuring to check "Add Python to PATH".
+   *d. Verify installation by reopening Git Bash and typing:
       ```
       python --version
       ```
@@ -38,7 +54,7 @@ Tested on Windows 11, need to further figure out how to GPU instead of CPU.
    b. Navigate to your desired directory.
    c. Clone the repository:
       ```
-      git clone https://huggingface.co/spaces/davanstrien/ColPali-Query-Generator
+      git clone https://github.com/jimmycgz/ai-image-rag.git
       ```
 
 6. Set Up Conda Environment:
@@ -76,20 +92,8 @@ Tested on Windows 11, need to further figure out how to GPU instead of CPU.
    c. Look for a local URL in the output (e.g., http://127.0.0.1:7860).
    d. Open this URL in your web browser to access the Gradio interface.
 
-9. Using the Application:
-   a. The interface will allow you to upload an image of a document.
-   b. The model will generate queries based on the document content.
-   c. Results will be displayed in the interface.
 
-10. Troubleshooting:
+## Troubleshooting:
     - If you encounter "out of memory" errors, try closing other applications or restarting your VM.
     - For disk space issues, consider expanding your VM's storage or removing unnecessary files.
     - If the model loading is extremely slow, be patient as it's running on CPU.
-
-11. Performance Considerations:
-    - This setup runs the model on CPU, which will be significantly slower than GPU acceleration.
-    - For better performance, consider using a smaller model or exploring cloud-based GPU solutions.
-
-Remember, running large language models on a VM without GPU acceleration will be slow. This setup is more suitable for testing and development rather than production use.
-
-For any specific errors or issues, refer to the project's documentation or seek help in the project's discussion forums.
