@@ -10,8 +10,10 @@ Original repo https://huggingface.co/spaces/davanstrien/ColPali-Query-Generator
    c. Results will be displayed in the interface.
 
 ## Performance Considerations:
-    - This setup runs the model on CPU, which will be significantly slower than GPU acceleration.
-    - For better performance, consider using a smaller model or exploring cloud-based GPU solutions.
+
+    * This setup runs the model on CPU, which will be significantly slower than GPU acceleration.
+
+    * For better performance, consider using a smaller model or exploring cloud-based GPU solutions.
 
 Remember, running large language models on a VM without GPU acceleration will be slow. This setup is more suitable for testing and development rather than production use.
 
@@ -122,6 +124,9 @@ Tested on Windows 11, need to further figure out how to GPU instead of CPU.
 
 
 ## Troubleshooting:
-    *- If you encounter "out of memory" errors, try closing other applications or restarting your VM.
-    *- For disk space issues, consider expanding your VM's storage or removing unnecessary files.
-    *- If the model loading is extremely slow, be patient as it's running on CPU.
+
+    * If you encounter "out of memory" errors, try closing other applications or restarting your VM.
+
+    * For disk space issues, consider expanding your VM's storage or removing unnecessary files.
+
+    * If the model loading is extremely slow, be patient as it's running on CPU.
