@@ -117,11 +117,11 @@ Tested on Windows 11, need to further figure out how to GPU instead of CPU.
    b. Wait for the application to start. This may take some time as it loads the model.
 
    c. Look for a local URL in the output (e.g., http://127.0.0.1:7860).
-   
+
    d. Open this URL in your web browser to access the Gradio interface.
 
 
 ## Troubleshooting:
-    - If you encounter "out of memory" errors, try closing other applications or restarting your VM.
-    - For disk space issues, consider expanding your VM's storage or removing unnecessary files.
-    - If the model loading is extremely slow, be patient as it's running on CPU.
+    *- If you encounter "out of memory" errors, try closing other applications or restarting your VM.
+    *- For disk space issues, consider expanding your VM's storage or removing unnecessary files.
+    *- If the model loading is extremely slow, be patient as it's running on CPU.
