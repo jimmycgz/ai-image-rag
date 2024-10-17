@@ -1,12 +1,3 @@
-# import subprocess  # 🥲
-
-# subprocess.run(
-#     "pip install flash-attn --no-build-isolation",
-#     env={"FLASH_ATTENTION_SKIP_CUDA_BUILD": "TRUE"},
-#     shell=True,
-# )
-
-# import spaces
 import gradio as gr
 from transformers import AutoModelForCausalLM, AutoProcessor, GenerationConfig
 import torch
@@ -17,18 +8,21 @@ from typing import Tuple
 
 os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
 
+device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+print(f"Using device: {device}")
+
 # Load Molmo model
 model = AutoModelForCausalLM.from_pretrained(
     'allenai/Molmo-7B-D-0924',
     trust_remote_code=True,
-    torch_dtype='auto',
-    device_map='auto'
+    torch_dtype=torch.float16,
+    device_map="auto"
 )
 processor = AutoProcessor.from_pretrained(
     'allenai/Molmo-7B-D-0924',
     trust_remote_code=True,
-    torch_dtype='auto',
-    device_map='auto'
+    torch_dtype=torch.float16,
+    device_map="auto"
 )
 
 class GeneralRetrievalQuery(BaseModel):
@@ -83,26 +77,31 @@ prompt, pydantic_model = get_retrieval_prompt("general")
 def _prep_data_for_input(image):
     return processor.process(
         images=[image],
-        text=prompt
+        text=prompt,
+        return_tensors="pt"
     )
 
-# @spaces.GPU(duration=120)
 def generate_response(image):
     inputs = _prep_data_for_input(image)
-    inputs = {k: v.to(model.device).unsqueeze(0) for k, v in inputs.items()}
-    output = model.generate_from_batch(
-        inputs,
-        GenerationConfig(max_new_tokens=800, stop_token="<|endoftext|>"),
-        tokenizer=processor.tokenizer
-    )
-    generated_tokens = output[0, inputs['input_ids'].size(1):]
-    output_text = processor.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+    inputs = {k: v.to(device) for k, v in inputs.items()}
+    
+    with torch.no_grad():
+        output = model.generate(
+            **inputs,
+            max_new_tokens=800,
+            do_sample=True,
+            temperature=0.7,
+            top_p=0.95,
+            eos_token_id=processor.tokenizer.eos_token_id
+        )
+    
+    generated_text = processor.tokenizer.decode(output[0], skip_special_tokens=True)
 
     try:
-        return str(json.loads(output_text))
-    except Exception:
+        return str(json.loads(generated_text))
+    except json.JSONDecodeError:
         gr.Warning("Failed to parse JSON from output")
-        return output_text
+        return generated_text
 
 title = "ColPali fine-tuning Query Generator"
 description = """[ColPali](https://huggingface.co/papers/2407.01449) is a very exciting new approach to multimodal document retrieval which aims to replace existing document retrievers which often rely on an OCR step with an end-to-end multimodal approach. 
@@ -133,4 +132,6 @@ demo = gr.Interface(
     description=description,
     examples=examples,
 )
-demo.launch()
+
+if __name__ == "__main__":
+    demo.launch()

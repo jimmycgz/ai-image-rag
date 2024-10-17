@@ -2,7 +2,8 @@ accelerate
 torch
 torchvision
 einops
-tensorflow-cpu
+# tensorflow-cpu
+tensorflow==2.16.*
 transformers
 huggingface_hub[hf_transfer]
 gradio
