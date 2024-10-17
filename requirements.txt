@@ -1,0 +1,10 @@
+accelerate
+torch
+torchvision
+einops
+tensorflow-cpu
+transformers
+huggingface_hub[hf_transfer]
+gradio
+Pillow
+pydantic
