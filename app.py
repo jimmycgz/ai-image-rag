@@ -5,6 +5,7 @@ import os
 import json
 from pydantic import BaseModel
 from typing import Tuple
+from PIL import Image
 
 os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
 
@@ -75,33 +76,48 @@ Only return JSON. Don't return any extra explanation text. """
 prompt, pydantic_model = get_retrieval_prompt("general")
 
 def _prep_data_for_input(image):
-    return processor.process(
-        images=[image],
-        text=prompt,
-        return_tensors="pt"
-    )
+    try:
+        inputs = processor.process(
+            images=[image],
+            text=prompt,
+            return_tensors="pt"
+        )
+        print(f"Input shape: {inputs['pixel_values'].shape}")
+        print(f"Input types: {[type(v) for v in inputs.values()]}")
+        return inputs
+    except Exception as e:
+        print(f"Error in _prep_data_for_input: {e}")
+        raise
 
 def generate_response(image):
-    inputs = _prep_data_for_input(image)
-    inputs = {k: v.to(device) for k, v in inputs.items()}
-    
-    with torch.no_grad():
-        output = model.generate(
-            **inputs,
-            max_new_tokens=800,
-            do_sample=True,
-            temperature=0.7,
-            top_p=0.95,
-            eos_token_id=processor.tokenizer.eos_token_id
-        )
-    
-    generated_text = processor.tokenizer.decode(output[0], skip_special_tokens=True)
-
+    print(f"Input image shape: {image.shape if hasattr(image, 'shape') else 'Not a numpy array'}")
     try:
-        return str(json.loads(generated_text))
-    except json.JSONDecodeError:
-        gr.Warning("Failed to parse JSON from output")
-        return generated_text
+        inputs = _prep_data_for_input(image)
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+        
+        print(f"Model device: {model.device}")
+        print(f"Input devices: {[v.device for v in inputs.values()]}")
+        
+        with torch.no_grad():
+            output = model.generate(
+                **inputs,
+                max_new_tokens=800,
+                do_sample=True,
+                temperature=0.7,
+                top_p=0.95,
+                eos_token_id=processor.tokenizer.eos_token_id
+            )
+        
+        generated_text = processor.tokenizer.decode(output[0], skip_special_tokens=True)
+
+        try:
+            return str(json.loads(generated_text))
+        except json.JSONDecodeError:
+            gr.Warning("Failed to parse JSON from output")
+            return generated_text
+    except Exception as e:
+        print(f"Error in generate_response: {e}")
+        return f"An error occurred: {str(e)}"
 
 title = "ColPali fine-tuning Query Generator"
 description = """[ColPali](https://huggingface.co/papers/2407.01449) is a very exciting new approach to multimodal document retrieval which aims to replace existing document retrievers which often rely on an OCR step with an end-to-end multimodal approach. 
@@ -124,8 +140,14 @@ examples = [
     "examples/SRCCL_Technical-Summary.pdf_page_7.jpg",
 ]
 
+def safe_generate_response(image):
+    try:
+        return generate_response(image)
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
+
 demo = gr.Interface(
-    fn=generate_response,
+    fn=safe_generate_response,
     inputs=gr.Image(type="pil"),
     outputs=gr.Text(),
     title=title,
